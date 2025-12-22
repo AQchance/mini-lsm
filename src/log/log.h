@@ -35,7 +35,7 @@ inline const char *log_level_to_string(LogLevel level) {
 
 class Logger {
    public:
-    // 默认配置
+    // default log rotation settings
     static constexpr size_t DEFAULT_MAX_FILE_SIZE = 30 * 1024 * 1024;  // 30MB
     static constexpr int DEFAULT_MAX_FILE_COUNT = 4;
 
@@ -49,7 +49,7 @@ class Logger {
         min_level_ = level;
     }
 
-    // 设置日志文件，支持轮转配置
+    // set log file with rotation settings
     void set_log_file(const char *filename, size_t max_file_size = DEFAULT_MAX_FILE_SIZE,
                       int max_file_count = DEFAULT_MAX_FILE_COUNT) {
         std::lock_guard<std::mutex> lock(mutex_);
@@ -61,10 +61,10 @@ class Logger {
         current_file_size_ = 0;
         current_file_index_ = 0;
 
-        // 查找已存在的日志文件，确定当前索引
+        // search for existing log files to determine the current index
         find_current_file_index();
 
-        // 打开当前日志文件
+        // open the current log file
         open_current_log_file();
     }
 
@@ -80,7 +80,7 @@ class Logger {
 
         std::lock_guard<std::mutex> lock(mutex_);
 
-        // 获取当前的时间
+        // get current time
         char time_buffer[32];
         time_t now = time(nullptr);
         struct tm *tm_info = localtime(&now);
@@ -92,31 +92,30 @@ class Logger {
         }
         filename = filename ? filename + 1 : file;
 
-        // 格式化日志消息
+        // format the log message
         char message_buffer[1024];
         va_list args;
         va_start(args, format);
         vsnprintf(message_buffer, sizeof(message_buffer), format, args);
         va_end(args);
 
-        // 构建完整日志行
+        // construct the final log line
         char log_line[1200];
-        int log_len =
-            snprintf(log_line, sizeof(log_line), "[%s] [%s] [%s:%d] %s\n", time_buffer,
-                     log_level_to_string(level), filename, line, message_buffer);
+        int log_len = snprintf(log_line, sizeof(log_line), "[%s] [%s] [%s:%d] %s\n", time_buffer,
+                               log_level_to_string(level), filename, line, message_buffer);
 
         if (log_file_) {
-            // 检查是否需要轮转
+            // check if we need to rotate the log file
             if (current_file_size_ + log_len > max_file_size_) {
                 rotate_log_file();
             }
 
-            // 输出日志到文件
+            // output log to file
             fprintf(log_file_, "%s", log_line);
             fflush(log_file_);
             current_file_size_ += log_len;
         } else {
-            // 输出日志到控制台
+            // output log to stderr
             fprintf(stderr, "%s", log_line);
         }
     }
@@ -130,7 +129,9 @@ class Logger {
           current_file_size_(0),
           current_file_index_(0) {}
 
-    ~Logger() { close_log_file_unlocked(); }
+    ~Logger() {
+        close_log_file_unlocked();
+    }
 
     Logger(const Logger &) = delete;
     Logger &operator=(const Logger &) = delete;
@@ -144,12 +145,12 @@ class Logger {
         current_file_size_ = 0;
     }
 
-    // 生成带索引的日志文件名
+    // generate log filename based on index
     std::string get_log_filename(int index) const {
         if (index == 0) {
             return base_filename_;
         }
-        // 在扩展名前插入索引号
+        // insert index before file extension
         size_t dot_pos = base_filename_.rfind('.');
         if (dot_pos != std::string::npos) {
             return base_filename_.substr(0, dot_pos) + "." + std::to_string(index) +
@@ -158,24 +159,24 @@ class Logger {
         return base_filename_ + "." + std::to_string(index);
     }
 
-    // 查找当前应该使用的文件索引
+    // find the current log file index and size
     void find_current_file_index() {
         current_file_index_ = 0;
 
-        // 检查主日志文件是否存在并获取大小
+        // check main log file
         FILE *f = fopen(base_filename_.c_str(), "r");
         if (f) {
             fseek(f, 0, SEEK_END);
             current_file_size_ = ftell(f);
             fclose(f);
 
-            // 如果主文件已满，查找下一个可用索引
+            // if main log file is full, check rotated files
             if (current_file_size_ >= max_file_size_) {
                 for (int i = 1; i < max_file_count_; ++i) {
                     std::string fname = get_log_filename(i);
                     f = fopen(fname.c_str(), "r");
                     if (!f) {
-                        // 文件不存在，使用这个索引
+                        // file does not exist, use this index
                         current_file_index_ = i;
                         current_file_size_ = 0;
                         break;
@@ -185,7 +186,7 @@ class Logger {
                     fclose(f);
 
                     if (size < max_file_size_) {
-                        // 文件未满，使用这个索引
+                        // file exists and is not full, use this index
                         current_file_index_ = i;
                         current_file_size_ = size;
                         break;
@@ -195,7 +196,7 @@ class Logger {
         }
     }
 
-    // 打开当前日志文件
+    // open the current log file based on index
     void open_current_log_file() {
         std::string fname = get_log_filename(current_file_index_);
         log_file_ = fopen(fname.c_str(), "a");
@@ -205,22 +206,22 @@ class Logger {
         }
     }
 
-    // 轮转日志文件
+    // ratate the log file
     void rotate_log_file() {
         if (log_file_) {
             fclose(log_file_);
             log_file_ = nullptr;
         }
 
-        // 移动到下一个索引
+        // move to next file index
         current_file_index_ = (current_file_index_ + 1) % max_file_count_;
         current_file_size_ = 0;
 
-        // 删除旧文件（如果存在）
+        // delete the old file if exists
         std::string fname = get_log_filename(current_file_index_);
         remove(fname.c_str());
 
-        // 打开新文件
+        // open new log file
         log_file_ = fopen(fname.c_str(), "w");
     }
 
@@ -238,7 +239,7 @@ class Logger {
 
 }  // namespace mini_lsm
 
-// 宏定义简化日志记录的使用
+// logging macros
 #define LOG_DEBUG(fmt, ...)                                                                  \
     mini_lsm::Logger::get_instance().log(mini_lsm::LogLevel::DEBUG, __FILE__, __LINE__, fmt, \
                                          ##__VA_ARGS__)
