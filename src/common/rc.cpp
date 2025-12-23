@@ -1,10 +1,8 @@
 #include "common/rc.h"
 
-#include <string_view>
-
 namespace mini_lsm {
 
-std::string_view rc_to_string(RC rc) {
+const char *rc_to_string(RC rc) {
     switch (rc) {
         case RC::SUCCESS:
             return "SUCCESS";
