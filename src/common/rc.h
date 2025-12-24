@@ -13,4 +13,7 @@ enum class RC {
 
 const char *rc_to_string(RC rc);
 
+bool RC_SUCC(RC rc);
+bool RC_FAIL(RC rc);
+
 }  // namespace mini_lsm
