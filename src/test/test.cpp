@@ -2,6 +2,7 @@
 
 #include "test/log_test.h"
 #include "test/rc_test.h"
+#include "test/memtable_test.h"
 #include "test/skiplist_test.h"
 
 int main() {
@@ -13,7 +14,12 @@ int main() {
     // skiplist test
     std::cout << "Running skiplist tests...\n";
     test::skiplist_test();
-    std::cout << "Skiplist tests completed.\n";
+    std::cout << "Skiplist tests completed.\n\n";
+
+    // memtable tests
+    std::cout << "Running memtable tests...\n";
+    test::memtable_test();
+    std::cout << "Memtable tests completed.\n";
 
     // return code test
     std::cout << "\nRunning RC enum tests...\n";
