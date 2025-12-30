@@ -8,6 +8,7 @@ enum class RC {
     INVALID_ARGUMENT,
     NO_IMPLEMENTATION,
     ERROR,
+    KEY_NOT_EXIST,
     NOT_FOUND,
 };
 

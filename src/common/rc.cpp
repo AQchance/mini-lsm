@@ -12,6 +12,8 @@ const char *rc_to_string(RC rc) {
             return "RC::NO_IMPLEMENTATION";
         case RC::ERROR:
             return "RC::ERROR";
+        case RC::KEY_NOT_EXIST:
+            return "RC::KEY_NOT_EXIST";
         case RC::NOT_FOUND:
             return "RC::NOT_FOUND";
     }
