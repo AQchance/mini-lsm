@@ -5,6 +5,8 @@
 
 namespace mini_lsm {
 
+constexpr std::string TOMBSTONE = "";
+
 class MemTable {
    public:
     MemTable();

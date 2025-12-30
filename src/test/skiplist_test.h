@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 
+#include "common/rc.h"
 #include "skiplist/skiplist.h"
 
 namespace test {
@@ -107,9 +108,10 @@ inline void skiplist_test() {
         assert(list.size() == count);
 
         for (int i = 0; i < count; i++) {
-            auto val = list.get("key" + std::to_string(i));
-            assert(val.has_value());
-            assert(val.value() == "value" + std::to_string(i));
+            std::string result;
+            mini_lsm::RC rc = list.get("key" + std::to_string(i), result);
+            assert(rc == mini_lsm::RC::SUCCESS);
+            assert(result.value() == "value" + std::to_string(i));
         }
 
         std::cout << "PASSED\n";

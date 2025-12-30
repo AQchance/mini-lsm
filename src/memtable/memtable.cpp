@@ -3,7 +3,6 @@
 namespace mini_lsm {
 
 // An empty string is used as a tombstone to indicate that a key has been deleted.
-const std::string TOMBSTONE = "";
 
 MemTable::MemTable() : table_() {}
 
