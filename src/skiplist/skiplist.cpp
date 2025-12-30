@@ -2,6 +2,8 @@
 
 #include <ctime>
 
+#include "common/rc.h"
+
 namespace mini_lsm {
 SkipList::SkipList() : current_level_(1), size_(0) {
     // seed the random number generator
@@ -83,7 +85,7 @@ void SkipList::insert(const std::string &key, const std::string &value) {
     size_++;
 }
 
-std::optional<std::string> SkipList::get(const std::string &key) const {
+RC SkipList::get(const std::string &key, std::string &value) const {
     SkipListNode *current = header_;
 
     // traverse from the highest level down to level 0
@@ -98,14 +100,15 @@ std::optional<std::string> SkipList::get(const std::string &key) const {
 
     // check if the key is found
     if (current != nullptr && current->key == key) {
-        return current->value;
+        value = current->value;
     }
-
-    return std::nullopt;
+    return RC::KEY_NOT_EXIST;
 }
 
 bool SkipList::contains(const std::string &key) const {
-    return get(key).has_value();
+    std::string value;
+    RC rc = get(key, value);
+    return RC_SUCC(rc);
 }
 
 void SkipList::remove(const std::string &key) {

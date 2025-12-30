@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "common/rc.h"
+
 namespace mini_lsm {
 // the maximum number of levels in the skip list
 constexpr int kMaxLevel = 12;
@@ -38,7 +40,7 @@ class SkipList {
     void insert(const std::string &key, const std::string &value);
 
     // returns std::nullprtopt if not found
-    std::optional<std::string> get(const std::string &key) const;
+    RC get(const std::string &key, std::string &value) const;
 
     // check if the key exists
     bool contains(const std::string &key) const;
@@ -130,4 +132,3 @@ class SkipListIterator {
 };
 
 }  // namespace mini_lsm
-
