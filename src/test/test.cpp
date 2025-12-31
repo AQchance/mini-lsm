@@ -4,8 +4,14 @@
 #include "test/rc_test.h"
 #include "test/memtable_test.h"
 #include "test/skiplist_test.h"
+#include "test/block_test.h"
 
 int main() {
+    // block test
+    std::cout << "Running block tests...\n";
+    test::block_test();
+    std::cout << "Block tests completed.\n\n";
+
     // log test
     std::cout << "Running log tests...\n";
     test::log_test();
