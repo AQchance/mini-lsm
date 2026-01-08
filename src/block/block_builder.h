@@ -20,7 +20,7 @@ class BlockBuilder {
     // Returns true if the pair was added successfully.
     // Returns false if adding the pair would exceed the block size.
     // (Note: The first pair is always added regardless of size limit to ensure progress)
-    bool add(std::string_view key, std::string_view value);
+    RC add(std::string_view key, std::string_view value);
 
     // Finishes the block and returns the constructed Block.
     // This resets the builder state.

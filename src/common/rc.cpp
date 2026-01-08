@@ -14,6 +14,8 @@ const char *rc_to_string(RC rc) {
             return "RC::ERROR";
         case RC::KEY_NOT_EXIST:
             return "RC::KEY_NOT_EXIST";
+        case RC::OUT_OF_SIZE:
+            return "RC::OUT_OF_SIZE";
         case RC::NOT_FOUND:
             return "RC::NOT_FOUND";
     }

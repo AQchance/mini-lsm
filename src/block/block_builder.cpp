@@ -9,12 +9,12 @@ BlockBuilder::BlockBuilder(size_t block_size) : block_size_(block_size) {
     offsets_.reserve(block_size / 64);
 }
 
-bool BlockBuilder::add(std::string_view key, std::string_view value) {
+RC BlockBuilder::add(std::string_view key, std::string_view value) {
     size_t entry_size = sizeof(uint16_t) + key.size() + sizeof(uint16_t) + value.size();
     size_t overhead = sizeof(uint16_t);  // for the offset
 
     if (!is_empty() && current_size() + entry_size + overhead > block_size_) {
-        return false;
+        return RC::OUT_OF_SIZE;
     }
 
     offsets_.push_back(static_cast<uint16_t>(data_.size()));
@@ -37,7 +37,7 @@ bool BlockBuilder::add(std::string_view key, std::string_view value) {
     // Encode value
     data_.insert(data_.end(), value.begin(), value.end());
 
-    return true;
+    return RC::SUCCESS;
 }
 
 Block BlockBuilder::build() {

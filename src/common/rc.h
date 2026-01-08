@@ -9,6 +9,7 @@ enum class RC {
     NO_IMPLEMENTATION,
     ERROR,
     KEY_NOT_EXIST,
+    OUT_OF_SIZE,
     NOT_FOUND,
 };
 
