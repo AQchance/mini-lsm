@@ -16,13 +16,13 @@ void memtable_test() {
     memtable.put("key1", "value1");
     std::string result;
     rc = memtable.get("key1", result);
-    assert(RC_SUCC(rc) && result != TOMBSTONE && result == "value1");
+    assert(RC_SUCC(rc) && result != mini_lsm::TOMBSTONE && result == "value1");
     std::cout << "Test 1 Passed: Put and Get successful.\n";
 
     // 2. Test Overwrite
     memtable.put("key1", "value1_new");
     rc = memtable.get("key1", result);
-    assert(RC_SUCC(rc) && result != TOMBSTONE && result == "value1_new");
+    assert(RC_SUCC(rc) && result != mini_lsm::TOMBSTONE && result == "value1_new");
     std::cout << "Test 2 Passed: Overwrite successful.\n";
 
     // 3. Test Get non-existent key

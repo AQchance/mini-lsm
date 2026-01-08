@@ -101,6 +101,7 @@ RC SkipList::get(const std::string &key, std::string &value) const {
     // check if the key is found
     if (current != nullptr && current->key == key) {
         value = current->value;
+        return RC::SUCCESS;
     }
     return RC::KEY_NOT_EXIST;
 }

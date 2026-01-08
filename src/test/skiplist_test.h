@@ -21,9 +21,10 @@ inline void skiplist_test() {
         list.insert("key2", "value2");
         list.insert("key3", "value3");
 
-        assert(list.get("key1") == "value1");
-        assert(list.get("key2") == "value2");
-        assert(list.get("key3") == "value3");
+        std::string val;
+        assert(list.get("key1", val) == mini_lsm::RC::SUCCESS && val == "value1");
+        assert(list.get("key2", val) == mini_lsm::RC::SUCCESS && val == "value2");
+        assert(list.get("key3", val) == mini_lsm::RC::SUCCESS && val == "value3");
         assert(list.size() == 3);
 
         std::cout << "PASSED\n";
@@ -37,7 +38,8 @@ inline void skiplist_test() {
         list.insert("key1", "value1");
         list.insert("key1", "value1_updated");
 
-        assert(list.get("key1") == "value1_updated");
+        std::string val;
+        assert(list.get("key1", val) == mini_lsm::RC::SUCCESS && val == "value1_updated");
         assert(list.size() == 1);
 
         std::cout << "PASSED\n";
@@ -50,7 +52,8 @@ inline void skiplist_test() {
 
         list.insert("key1", "value1");
 
-        assert(!list.get("key2").has_value());
+        std::string val;
+        assert(list.get("key2", val) == mini_lsm::RC::KEY_NOT_EXIST);
         assert(!list.contains("key2"));
         assert(list.contains("key1"));
 
@@ -68,9 +71,10 @@ inline void skiplist_test() {
 
         list.remove("key2");
 
-        assert(list.get("key1") == "value1");
-        assert(!list.get("key2").has_value());
-        assert(list.get("key3") == "value3");
+        std::string val;
+        assert(list.get("key1", val) == mini_lsm::RC::SUCCESS && val == "value1");
+        assert(list.get("key2", val) == mini_lsm::RC::KEY_NOT_EXIST);
+        assert(list.get("key3", val) == mini_lsm::RC::SUCCESS && val == "value3");
         assert(list.size() == 2);
 
         std::cout << "PASSED\n";
@@ -111,7 +115,7 @@ inline void skiplist_test() {
             std::string result;
             mini_lsm::RC rc = list.get("key" + std::to_string(i), result);
             assert(rc == mini_lsm::RC::SUCCESS);
-            assert(result.value() == "value" + std::to_string(i));
+            assert(result == "value" + std::to_string(i));
         }
 
         std::cout << "PASSED\n";
@@ -124,7 +128,9 @@ inline void skiplist_test() {
 
         assert(list.empty());
         assert(list.size() == 0);
-        assert(!list.get("any").has_value());
+        
+        std::string val;
+        assert(list.get("any", val) == mini_lsm::RC::KEY_NOT_EXIST);
         list.remove("any");  // 不应该崩溃
         assert(list.begin() == list.end());
 

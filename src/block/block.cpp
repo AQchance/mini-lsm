@@ -15,7 +15,7 @@ RC Block::decode(const std::vector<uint8_t> &data, Block &decode_block) {
     size_t data_len = data.size();
     uint16_t num_elements;
     // safely read the number of elements
-    num_elements = *reinterpret_cast<const uint16_t *>(&data[data_len - sizeof(uint16_t)]);
+    memcpy(&num_elements, &data[data_len - sizeof(uint16_t)], sizeof(uint16_t));
 
     // calculate the start of the offsets section
     size_t offsets_start = data_len - sizeof(uint16_t) - num_elements * sizeof(uint16_t);
@@ -30,13 +30,16 @@ RC Block::decode(const std::vector<uint8_t> &data, Block &decode_block) {
     // read offsets
     for (int i = 0; i < num_elements; ++i) {
         uint16_t offset;
-        memcpy(&offset, &data[offset + i * sizeof(uint16_t)], sizeof(uint16_t));
+        memcpy(&offset, &data[offsets_start + i * sizeof(uint16_t)], sizeof(uint16_t));
         offsets.push_back(offset);
     }
 
     // isolate the actual data part
     std::vector<uint8_t> actual_data(data.begin(), data.begin() + offsets_start);
-    Block(std::move(actual_data), std::move(offsets));
+    
+    decode_block.data_ = std::move(actual_data);
+    decode_block.offsets_ = std::move(offsets);
+    
     return rc;
 }
 
@@ -45,7 +48,10 @@ RC Block::encode(std::vector<uint8_t> &encode_data) const {
     size_t initial_size = encode_data.size();
 
     // Reserve space: current data + offsets + num_elements (u16)
-    encode_data.reserve(initial_size + offsets_.size() * sizeof(uint16_t) + sizeof(uint16_t));
+    encode_data.reserve(initial_size + data_.size() + offsets_.size() * sizeof(uint16_t) + sizeof(uint16_t));
+
+    // Append data
+    encode_data.insert(encode_data.end(), data_.begin(), data_.end());
 
     // Append offsets
     for (uint16_t offset : offsets_) {
